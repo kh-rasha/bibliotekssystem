@@ -1,5 +1,8 @@
 package com.example.bibliotekssystem.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class AuthorDto {
     private Long id;
     private String name;
@@ -13,6 +16,8 @@ public class AuthorDto {
         this.name = name;
         this.numberOfBooks = numberOfBooks;
     }
+    @NotBlank(message = "Author name is required")
+    @Size(min = 2, max = 100, message = "Author name must be between 2 and 100 characters")
 
     public Long getId() {
         return id;

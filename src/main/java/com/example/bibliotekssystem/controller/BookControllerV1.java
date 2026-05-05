@@ -34,10 +34,9 @@ public class BookControllerV1 {
         return ResponseEntity.ok(bookService.getAllBooks(pageable));
     }
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public BookResponseDto createBook(@Valid @RequestBody BookRequestDto requestDto) {
-        return bookService.createBook(requestDto);
-
+    public ResponseEntity<BookResponseDto> createBook(@Valid @RequestBody BookRequestDto request) {
+        BookResponseDto createdBook = bookService.createBook(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);
     }
 
 

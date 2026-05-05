@@ -7,14 +7,16 @@ import jakarta.validation.constraints.Size;
 public class BookRequestDto {
 
     @NotBlank(message = "Title is required")
-    @Size(min = 2, max = 100)
+    @Size(min = 2, max = 100, message = "Title must be between 2 and 100 characters")
     private String title;
 
     @NotBlank(message = "Author is required")
-    @Size(min = 2, max = 100)
+    @Size(min = 2, max = 100, message = "Author must be between 2 and 100 characters")
     private String author;
 
+    @NotBlank(message = "ISBN is required")
     private String isbn;
+
     @Min(value = 0, message = "Published year must be positive")
     private int publishedYear;
 

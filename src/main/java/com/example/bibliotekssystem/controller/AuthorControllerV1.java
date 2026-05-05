@@ -3,6 +3,7 @@ package com.example.bibliotekssystem.controller;
 import com.example.bibliotekssystem.dto.AuthorDto;
 import com.example.bibliotekssystem.dto.BookResponseDto;
 import com.example.bibliotekssystem.service.AuthorService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +21,9 @@ public class AuthorControllerV1 {
     }
 
     @PostMapping
-    public ResponseEntity<AuthorDto> createAuthor(@RequestBody AuthorDto authorDto) {
+    public ResponseEntity<AuthorDto> createAuthor(@Valid @RequestBody AuthorDto authorDto) {
         AuthorDto createdAuthor = authorService.createAuthor(authorDto);
-        return new ResponseEntity<>(createdAuthor, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdAuthor);
     }
 
     @GetMapping("/{id}")

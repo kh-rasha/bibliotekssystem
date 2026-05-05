@@ -7,8 +7,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RestController
@@ -24,10 +26,15 @@ public class BookControllerV1 {
     @Operation(summary = "Create a new book")
     @ApiResponse(responseCode = "201", description = "Book created successfully")
     @ApiResponse(responseCode = "400", description = "Validation failed")
+    @GetMapping
+    public ResponseEntity<Page<BookResponseDto>> getAllBooks(Pageable pageable) {
+        return ResponseEntity.ok(bookService.getAllBooks(pageable));
+    }
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookResponseDto createBook(@Valid @RequestBody BookRequestDto requestDto) {
         return bookService.createBook(requestDto);
+
     }
 
     @Operation(summary = "Get all books in API v1")

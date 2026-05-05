@@ -1,16 +1,21 @@
 package com.example.bibliotekssystem.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public class BookRequestDto {
 
     @NotBlank(message = "Title is required")
+    @Size(min = 2, max = 100)
     private String title;
 
     @NotBlank(message = "Author is required")
+    @Size(min = 2, max = 100)
     private String author;
 
     private String isbn;
+    @Min(value = 0, message = "Published year must be positive")
     private int publishedYear;
 
     public BookRequestDto() {

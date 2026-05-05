@@ -6,7 +6,10 @@ import com.example.bibliotekssystem.dto.BookV2ResponseDto;
 import com.example.bibliotekssystem.exception.BookNotFoundException;
 import com.example.bibliotekssystem.model.Book;
 import com.example.bibliotekssystem.repository.BookRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -40,6 +43,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Cacheable(value = "books", key = "#id")
     public BookResponseDto getBookById(Long id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new BookNotFoundException(id));
@@ -57,6 +61,11 @@ public class BookServiceImpl implements BookService {
                         true
                 ))
                 .toList();
+    }
+    @Override
+    public Page<BookResponseDto> getAllBooks(Pageable pageable) {
+        return bookRepository.findAll(pageable)
+                .map(this::mapToResponseDto);
     }
 
     private BookResponseDto mapToResponseDto(Book book) {

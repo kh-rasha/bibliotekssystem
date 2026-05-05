@@ -10,7 +10,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
+import org.springframework.cache.annotation.CacheEvict;
 import java.util.List;
 
 @Service
@@ -22,6 +22,7 @@ public class BookServiceImpl implements BookService {
         this.bookRepository = bookRepository;
     }
 
+    @CacheEvict(value = "books", allEntries = true)
     @Override
     public BookResponseDto createBook(BookRequestDto requestDto) {
         Book book = new Book();

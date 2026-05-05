@@ -6,6 +6,7 @@ import com.example.bibliotekssystem.exception.AuthorNotFoundException;
 import com.example.bibliotekssystem.model.Author;
 import com.example.bibliotekssystem.model.Book;
 import com.example.bibliotekssystem.repository.AuthorRepository;
+import com.example.bibliotekssystem.repository.BookRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -17,9 +18,11 @@ import java.util.List;
 public class AuthorServiceImpl implements AuthorService {
 
     private final AuthorRepository authorRepository;
+    private BookRepository bookRepository = null;
 
     public AuthorServiceImpl(AuthorRepository authorRepository) {
         this.authorRepository = authorRepository;
+        this.bookRepository = bookRepository;
     }
 
     // =========================
@@ -53,10 +56,9 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public List<BookResponseDto> getBooksByAuthorId(Long authorId) {
         Author author = authorRepository.findById(authorId)
-                .orElseThrow(() ->
-                        new AuthorNotFoundException("Author with id " + authorId + " not found"));
+                .orElseThrow(() -> new AuthorNotFoundException("Author with id " + authorId + " not found"));
 
-        return author.getBooks()
+        return bookRepository.findByAuthor(author.getName())
                 .stream()
                 .map(this::mapBookToDto)
                 .toList();

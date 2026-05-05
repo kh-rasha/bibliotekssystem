@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("/api/v1/loans")
@@ -26,7 +28,7 @@ public class LoanControllerV1 {
     }
 
     @GetMapping
-    public ResponseEntity<List<LoanDto>> getAllActiveLoans() {
-        return ResponseEntity.ok(loanService.getAllActiveLoans());
+    public ResponseEntity<Page<LoanDto>> getAllLoans(Pageable pageable) {
+        return ResponseEntity.ok(loanService.getAllLoans(pageable));
     }
 }

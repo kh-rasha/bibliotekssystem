@@ -6,6 +6,7 @@ import com.example.bibliotekssystem.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,9 @@ public class BookControllerV1 {
     @ApiResponse(responseCode = "201", description = "Book created successfully")
     @ApiResponse(responseCode = "400", description = "Validation failed")
     @GetMapping
-    public ResponseEntity<Page<BookResponseDto>> getAllBooks(Pageable pageable) {
+    public ResponseEntity<Page<BookResponseDto>> getAllBooks(
+            @PageableDefault(size = 10, sort = "id") Pageable pageable
+    ) {
         return ResponseEntity.ok(bookService.getAllBooks(pageable));
     }
     @PostMapping
@@ -37,18 +40,5 @@ public class BookControllerV1 {
 
     }
 
-    @Operation(summary = "Get all books in API v1")
-    @ApiResponse(responseCode = "200", description = "Books fetched successfully")
-    @GetMapping
-    public List<BookResponseDto> getAllBooks() {
-        return bookService.getAllBooks();
-    }
 
-    @Operation(summary = "Get one book by id in API v1")
-    @ApiResponse(responseCode = "200", description = "Book found")
-    @ApiResponse(responseCode = "404", description = "Book not found")
-    @GetMapping("/{id}")
-    public BookResponseDto getBookById(@PathVariable Long id) {
-        return bookService.getBookById(id);
-    }
 }

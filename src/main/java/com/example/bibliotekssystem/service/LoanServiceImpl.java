@@ -8,6 +8,8 @@ import com.example.bibliotekssystem.model.Book;
 import com.example.bibliotekssystem.model.Loan;
 import com.example.bibliotekssystem.repository.BookRepository;
 import com.example.bibliotekssystem.repository.LoanRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +46,11 @@ public class LoanServiceImpl implements LoanService {
         Loan savedLoan = loanRepository.save(loan);
 
         return mapToDto(savedLoan);
+    }
+    @Override
+    public Page<LoanDto> getAllLoans(Pageable pageable) {
+        return loanRepository.findAll(pageable)
+                .map(this::mapToDto);
     }
 
     @Override

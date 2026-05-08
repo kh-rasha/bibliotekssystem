@@ -4,8 +4,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class AuthorDto {
+
     private Long id;
+
+    @NotBlank(message = "Author name is required")
+    @Size(min = 2, max = 100, message = "Author name must be between 2 and 100 characters")
     private String name;
+
     private int numberOfBooks;
 
     public AuthorDto() {
@@ -16,8 +21,6 @@ public class AuthorDto {
         this.name = name;
         this.numberOfBooks = numberOfBooks;
     }
-    @NotBlank(message = "Author name is required")
-    @Size(min = 2, max = 100, message = "Author name must be between 2 and 100 characters")
 
     public Long getId() {
         return id;

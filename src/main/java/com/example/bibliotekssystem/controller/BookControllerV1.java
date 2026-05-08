@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/api/v1/books")
@@ -26,16 +27,12 @@ public class BookControllerV1 {
         this.bookService = bookService;
     }
 
-    @Operation(summary = "Get all books")
-    @ApiResponse(responseCode = "200", description = "Books fetched successfully")
-    @GetMapping
-    public ResponseEntity<Page<BookResponseDto>> getAllBooks(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "id") String sortBy
-    ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).ascending());
-        return ResponseEntity.ok(bookService.getAllBooks(pageable));
+    @Operation(summary = "Get book by id")
+    @ApiResponse(responseCode = "200", description = "Book fetched successfully")
+    @ApiResponse(responseCode = "404", description = "Book not found")
+    @GetMapping("/{id}")
+    public ResponseEntity<BookResponseDto> getBookById(@PathVariable Long id) {
+        return ResponseEntity.ok(bookService.getBookById(id));
     }
 
     @Operation(summary = "Create a new book")

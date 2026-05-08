@@ -276,11 +276,7 @@ Genom att hantera dessa delar kan systemet bli mer skalbart och stabilt.
 
 ## Kör applikationen
 
-```bash
-./gradlew bootRun
-```
-
-eller direkt från IntelliJ.
+ direkt från IntelliJ.
 
 ---
 

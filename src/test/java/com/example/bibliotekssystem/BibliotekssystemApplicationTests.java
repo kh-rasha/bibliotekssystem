@@ -5,6 +5,7 @@ import com.example.bibliotekssystem.dto.BookRequestDto;
 import com.example.bibliotekssystem.dto.BookResponseDto;
 import com.example.bibliotekssystem.dto.CreateLoanRequestDto;
 import com.example.bibliotekssystem.dto.LoanDto;
+import com.example.bibliotekssystem.dto.PageBookResponseDto;
 import com.example.bibliotekssystem.repository.AuthorRepository;
 import com.example.bibliotekssystem.repository.BookRepository;
 import com.example.bibliotekssystem.repository.LoanRepository;
@@ -14,13 +15,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 
-import static org.junit.jupiter.api.Assertions.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class BibliotekssystemApplicationTests {
@@ -44,6 +48,10 @@ class BibliotekssystemApplicationTests {
         return "http://localhost:" + port;
     }
 
+    private TestRestTemplate authRestTemplate() {
+        return restTemplate.withBasicAuth("admin", "admin123");
+    }
+
     @BeforeEach
     void cleanDatabase() {
         loanRepository.deleteAll();
@@ -60,11 +68,12 @@ class BibliotekssystemApplicationTests {
                 2024
         );
 
-        ResponseEntity<BookResponseDto> response = restTemplate.postForEntity(
-                baseUrl() + "/api/v1/books",
-                request,
-                BookResponseDto.class
-        );
+        ResponseEntity<BookResponseDto> response =
+                authRestTemplate().postForEntity(
+                        baseUrl() + "/api/v1/books",
+                        request,
+                        BookResponseDto.class
+                );
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -81,19 +90,24 @@ class BibliotekssystemApplicationTests {
                 2025
         );
 
-        ResponseEntity<BookResponseDto> createResponse = restTemplate.postForEntity(
-                baseUrl() + "/api/v1/books",
-                request,
-                BookResponseDto.class
-        );
+        ResponseEntity<BookResponseDto> createResponse =
+                authRestTemplate().postForEntity(
+                        baseUrl() + "/api/v1/books",
+                        request,
+                        BookResponseDto.class
+                );
 
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
         assertNotNull(createResponse.getBody());
+        assertNotNull(createResponse.getBody().getId());
+
         Long id = createResponse.getBody().getId();
 
-        ResponseEntity<BookResponseDto> getResponse = restTemplate.getForEntity(
-                baseUrl() + "/api/v1/books/" + id,
-                BookResponseDto.class
-        );
+        ResponseEntity<BookResponseDto> getResponse =
+                authRestTemplate().getForEntity(
+                        baseUrl() + "/api/v1/books/" + id,
+                        BookResponseDto.class
+                );
 
         assertEquals(HttpStatus.OK, getResponse.getStatusCode());
         assertNotNull(getResponse.getBody());
@@ -103,10 +117,11 @@ class BibliotekssystemApplicationTests {
 
     @Test
     void shouldReturn404WhenBookNotFound() {
-        ResponseEntity<String> response = restTemplate.getForEntity(
-                baseUrl() + "/api/v1/books/99999",
-                String.class
-        );
+        ResponseEntity<String> response =
+                authRestTemplate().getForEntity(
+                        baseUrl() + "/api/v1/books/99999",
+                        String.class
+                );
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
@@ -116,11 +131,12 @@ class BibliotekssystemApplicationTests {
         AuthorDto request = new AuthorDto();
         request.setName("J.K. Rowling");
 
-        ResponseEntity<AuthorDto> response = restTemplate.postForEntity(
-                baseUrl() + "/api/v1/authors",
-                request,
-                AuthorDto.class
-        );
+        ResponseEntity<AuthorDto> response =
+                authRestTemplate().postForEntity(
+                        baseUrl() + "/api/v1/authors",
+                        request,
+                        AuthorDto.class
+                );
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -130,6 +146,15 @@ class BibliotekssystemApplicationTests {
 
     @Test
     void shouldCreateLoan() {
+        AuthorDto authorRequest = new AuthorDto();
+        authorRequest.setName("Robert Martin");
+
+        authRestTemplate().postForEntity(
+                baseUrl() + "/api/v1/authors",
+                authorRequest,
+                AuthorDto.class
+        );
+
         BookRequestDto bookRequest = new BookRequestDto(
                 "Clean Code",
                 "Robert Martin",
@@ -137,38 +162,45 @@ class BibliotekssystemApplicationTests {
                 2008
         );
 
-        ResponseEntity<BookResponseDto> bookResponse = restTemplate.postForEntity(
-                baseUrl() + "/api/v1/books",
-                bookRequest,
-                BookResponseDto.class
-        );
+        ResponseEntity<BookResponseDto> bookResponse =
+                authRestTemplate().postForEntity(
+                        baseUrl() + "/api/v1/books",
+                        bookRequest,
+                        BookResponseDto.class
+                );
 
+        assertEquals(HttpStatus.CREATED, bookResponse.getStatusCode());
         assertNotNull(bookResponse.getBody());
+        assertNotNull(bookResponse.getBody().getId());
+
         Long bookId = bookResponse.getBody().getId();
 
         CreateLoanRequestDto loanRequest = new CreateLoanRequestDto();
         loanRequest.setBookId(bookId);
 
-        ResponseEntity<LoanDto> loanResponse = restTemplate.postForEntity(
-                baseUrl() + "/api/v1/loans",
-                loanRequest,
-                LoanDto.class
-        );
+        ResponseEntity<LoanDto> loanResponse =
+                authRestTemplate().postForEntity(
+                        baseUrl() + "/api/v1/loans",
+                        loanRequest,
+                        LoanDto.class
+                );
 
         assertEquals(HttpStatus.CREATED, loanResponse.getStatusCode());
         assertNotNull(loanResponse.getBody());
         assertNotNull(loanResponse.getBody().getId());
     }
+
     @Test
     void shouldCreateAuthorAndBook() {
         AuthorDto authorRequest = new AuthorDto();
         authorRequest.setName("George Orwell");
 
-        ResponseEntity<AuthorDto> authorResponse = restTemplate.postForEntity(
-                baseUrl() + "/api/v1/authors",
-                authorRequest,
-                AuthorDto.class
-        );
+        ResponseEntity<AuthorDto> authorResponse =
+                authRestTemplate().postForEntity(
+                        baseUrl() + "/api/v1/authors",
+                        authorRequest,
+                        AuthorDto.class
+                );
 
         assertEquals(HttpStatus.CREATED, authorResponse.getStatusCode());
 
@@ -179,11 +211,12 @@ class BibliotekssystemApplicationTests {
                 1949
         );
 
-        ResponseEntity<BookResponseDto> bookResponse = restTemplate.postForEntity(
-                baseUrl() + "/api/v1/books",
-                bookRequest,
-                BookResponseDto.class
-        );
+        ResponseEntity<BookResponseDto> bookResponse =
+                authRestTemplate().postForEntity(
+                        baseUrl() + "/api/v1/books",
+                        bookRequest,
+                        BookResponseDto.class
+                );
 
         assertEquals(HttpStatus.CREATED, bookResponse.getStatusCode());
     }
@@ -193,15 +226,16 @@ class BibliotekssystemApplicationTests {
         BookRequestDto request = new BookRequestDto(
                 "",
                 "",
-                "123456",
-                2024
+                "",
+                -1
         );
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                baseUrl() + "/api/v1/books",
-                request,
-                String.class
-        );
+        ResponseEntity<String> response =
+                authRestTemplate().postForEntity(
+                        baseUrl() + "/api/v1/books",
+                        request,
+                        String.class
+                );
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
@@ -215,34 +249,41 @@ class BibliotekssystemApplicationTests {
                 2003
         );
 
-        ResponseEntity<BookResponseDto> bookResponse = restTemplate.postForEntity(
-                baseUrl() + "/api/v1/books",
-                bookRequest,
-                BookResponseDto.class
-        );
+        ResponseEntity<BookResponseDto> bookResponse =
+                authRestTemplate().postForEntity(
+                        baseUrl() + "/api/v1/books",
+                        bookRequest,
+                        BookResponseDto.class
+                );
 
+        assertEquals(HttpStatus.CREATED, bookResponse.getStatusCode());
         assertNotNull(bookResponse.getBody());
+        assertNotNull(bookResponse.getBody().getId());
+
         Long bookId = bookResponse.getBody().getId();
 
         CreateLoanRequestDto loanRequest = new CreateLoanRequestDto();
         loanRequest.setBookId(bookId);
 
-        ResponseEntity<LoanDto> firstLoan = restTemplate.postForEntity(
-                baseUrl() + "/api/v1/loans",
-                loanRequest,
-                LoanDto.class
-        );
+        ResponseEntity<LoanDto> firstLoan =
+                authRestTemplate().postForEntity(
+                        baseUrl() + "/api/v1/loans",
+                        loanRequest,
+                        LoanDto.class
+                );
 
         assertEquals(HttpStatus.CREATED, firstLoan.getStatusCode());
 
-        ResponseEntity<String> secondLoan = restTemplate.postForEntity(
-                baseUrl() + "/api/v1/loans",
-                loanRequest,
-                String.class
-        );
+        ResponseEntity<String> secondLoan =
+                authRestTemplate().postForEntity(
+                        baseUrl() + "/api/v1/loans",
+                        loanRequest,
+                        String.class
+                );
 
         assertEquals(HttpStatus.BAD_REQUEST, secondLoan.getStatusCode());
     }
+
     @Test
     void shouldCreateOnlyOneLoanWhen100RequestsRunConcurrently() throws InterruptedException {
         BookRequestDto bookRequest = new BookRequestDto(
@@ -252,13 +293,17 @@ class BibliotekssystemApplicationTests {
                 2024
         );
 
-        ResponseEntity<BookResponseDto> bookResponse = restTemplate.postForEntity(
-                baseUrl() + "/api/v1/books",
-                bookRequest,
-                BookResponseDto.class
-        );
+        ResponseEntity<BookResponseDto> bookResponse =
+                authRestTemplate().postForEntity(
+                        baseUrl() + "/api/v1/books",
+                        bookRequest,
+                        BookResponseDto.class
+                );
 
+        assertEquals(HttpStatus.CREATED, bookResponse.getStatusCode());
         assertNotNull(bookResponse.getBody());
+        assertNotNull(bookResponse.getBody().getId());
+
         Long bookId = bookResponse.getBody().getId();
 
         int numberOfRequests = 10;
@@ -280,11 +325,12 @@ class BibliotekssystemApplicationTests {
                     CreateLoanRequestDto loanRequest = new CreateLoanRequestDto();
                     loanRequest.setBookId(bookId);
 
-                    ResponseEntity<String> response = restTemplate.postForEntity(
-                            baseUrl() + "/api/v1/loans",
-                            loanRequest,
-                            String.class
-                    );
+                    ResponseEntity<String> response =
+                            authRestTemplate().postForEntity(
+                                    baseUrl() + "/api/v1/loans",
+                                    loanRequest,
+                                    String.class
+                            );
 
                     if (response.getStatusCode() == HttpStatus.CREATED) {
                         successCount.incrementAndGet();
@@ -309,5 +355,150 @@ class BibliotekssystemApplicationTests {
 
         assertEquals(1, successCount.get());
         assertEquals(1, loanRepository.count());
+    }
+
+    @Test
+    void shouldReturnPaginatedBooks() {
+        BookRequestDto book1 = new BookRequestDto(
+                "Java Basics",
+                "Ali",
+                "11111",
+                2024
+        );
+
+        BookRequestDto book2 = new BookRequestDto(
+                "Spring Boot",
+                "Sara",
+                "22222",
+                2025
+        );
+
+        authRestTemplate().postForEntity(
+                baseUrl() + "/api/v1/books",
+                book1,
+                BookResponseDto.class
+        );
+
+        authRestTemplate().postForEntity(
+                baseUrl() + "/api/v1/books",
+                book2,
+                BookResponseDto.class
+        );
+
+        ResponseEntity<PageBookResponseDto> response =
+                authRestTemplate().getForEntity(
+                        baseUrl() + "/api/v1/books?page=0&size=5&sort=id,asc",
+                        PageBookResponseDto.class
+                );
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().getTotalElements());
+        assertEquals(0, response.getBody().getPage());
+        assertEquals(5, response.getBody().getSize());
+        assertFalse(response.getBody().getContent().isEmpty());
+    }
+
+    @Test
+    void shouldReturn400WhenBookValidationFails() {
+        BookRequestDto invalidBook = new BookRequestDto(
+                "",
+                "",
+                "",
+                -1
+        );
+
+        ResponseEntity<String> response =
+                authRestTemplate().postForEntity(
+                        baseUrl() + "/api/v1/books",
+                        invalidBook,
+                        String.class
+                );
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWhenNoAuthentication() {
+        ResponseEntity<String> response =
+                restTemplate.getForEntity(
+                        baseUrl() + "/api/v1/books?page=0&size=5&sort=id,asc",
+                        String.class
+                );
+
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    }
+
+    @Test
+    void shouldAllowRequestWithAuthentication() {
+        ResponseEntity<String> response =
+                authRestTemplate().getForEntity(
+                        baseUrl() + "/api/v1/books?page=0&size=5&sort=id,asc",
+                        String.class
+                );
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void shouldGetBookByIdTwiceWhenCachingIsEnabled() {
+        BookRequestDto request = new BookRequestDto(
+                "Caching Test",
+                "Cache Author",
+                "33333",
+                2024
+        );
+
+        ResponseEntity<BookResponseDto> createResponse =
+                authRestTemplate().postForEntity(
+                        baseUrl() + "/api/v1/books",
+                        request,
+                        BookResponseDto.class
+                );
+
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        assertNotNull(createResponse.getBody());
+        assertNotNull(createResponse.getBody().getId());
+
+        Long bookId = createResponse.getBody().getId();
+
+        ResponseEntity<BookResponseDto> firstGet =
+                authRestTemplate().getForEntity(
+                        baseUrl() + "/api/v1/books/" + bookId,
+                        BookResponseDto.class
+                );
+
+        ResponseEntity<BookResponseDto> secondGet =
+                authRestTemplate().getForEntity(
+                        baseUrl() + "/api/v1/books/" + bookId,
+                        BookResponseDto.class
+                );
+
+        assertEquals(HttpStatus.OK, firstGet.getStatusCode());
+        assertEquals(HttpStatus.OK, secondGet.getStatusCode());
+        assertNotNull(firstGet.getBody());
+        assertNotNull(secondGet.getBody());
+        assertEquals(bookId, secondGet.getBody().getId());
+    }
+
+    @Test
+    void shouldReturn429WhenRateLimitExceeded() {
+        HttpStatusCode lastStatus = null;
+
+        for (int i = 0; i < 30; i++) {
+            ResponseEntity<String> response =
+                    authRestTemplate().getForEntity(
+                            baseUrl() + "/api/v1/books?page=0&size=5&sort=id,asc",
+                            String.class
+                    );
+
+            lastStatus = response.getStatusCode();
+
+            if (lastStatus == HttpStatus.TOO_MANY_REQUESTS) {
+                break;
+            }
+        }
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS, lastStatus);
     }
 }

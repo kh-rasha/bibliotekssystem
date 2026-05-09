@@ -129,7 +129,7 @@ Pagination används för att förbättra prestanda vid stora datamängder.
 Exempel:
 
 ```text
-GET /api/v1/books?page=0&size=5&sort=id,asc
+GET "/api/v1/books?page=0&size=5&sortBy=id"
 ```
 
 ---

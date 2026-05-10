@@ -81,7 +81,7 @@ class BibliotekssystemApplicationTests {
         assertEquals("Ali", response.getBody().getAuthor());
     }
 
-    @Disabled("Caching test is unstable because getBookById returns 500")
+    @Disabled("getBookById endpoint needs further debugging")
 
     @Test
     void shouldGetBookById() {

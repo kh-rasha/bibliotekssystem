@@ -276,10 +276,12 @@ Genom att hantera dessa delar kan systemet bli mer skalbart och stabilt.
 
 ## Kör applikationen
 
- direkt från IntelliJ.
+Projektet kan köras direkt från IntelliJ genom att starta:
 
+```text
+BibliotekssystemApplication
+http://localhost:8080/swagger-ui/index.html
 ---
-
 # GitHub Repository
 
 Projektet laddades upp till GitHub som en del av inlämningen.

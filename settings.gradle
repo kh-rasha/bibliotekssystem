@@ -1,1 +1,4 @@
 rootProject.name = 'Bibliotekssystem'
+
+include 'discovery-server'
+include 'api-gateway'

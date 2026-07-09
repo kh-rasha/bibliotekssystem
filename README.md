@@ -284,4 +284,30 @@ http://localhost:8080/swagger-ui/index.html
 ---
 # GitHub Repository
 
-Projektet laddades upp till GitHub som en del av inlämningen.
+Projektet laddades upp till GitHub.
+
+## Microservices
+
+Projektet använder:
+
+- Eureka Discovery Server
+- API Gateway
+- Bibliotekssystem Service
+
+### Startordning
+
+1. discovery-server
+2. api-gateway
+3. bibliotekssystem
+
+### Eureka
+
+http://localhost:8761
+
+### API Gateway
+
+http://localhost:8081
+
+### Exempel
+
+GET http://localhost:8081/api/v1/books

@@ -311,3 +311,93 @@ http://localhost:8081
 ### Exempel
 
 GET http://localhost:8081/api/v1/books
+
+
+## Microservices Architecture
+
+Projektet består av flera tjänster:
+
+- Discovery Server med Eureka
+- API Gateway
+- Bibliotekssystem
+- Notification Service
+
+### Arkitektur
+
+```text
+Client
+  |
+  v
+API Gateway :8081
+  |
+  |--> Bibliotekssystem :8080
+  |
+  |--> Notification Service :8082
+
+Discovery Server / Eureka :8761
+````
+
+### Startordning
+
+Starta tjänsterna i denna ordning:
+
+1. DiscoveryServerApplication
+2. ApiGatewayApplication
+3. BibliotekssystemApplication
+4. NotificationServiceApplication
+
+### Eureka Dashboard
+
+```text
+http://localhost:8761
+```
+
+Här ska följande tjänster visas:
+
+```text
+API-GATEWAY
+BIBLIOTEKSSYSTEM
+NOTIFICATION-SERVICE
+```
+
+### API Gateway endpoints
+
+Bibliotekssystem via Gateway:
+
+```text
+GET http://localhost:8081/api/v1/books
+```
+
+Notification Service via Gateway:
+
+```text
+GET http://localhost:8081/notification
+```
+
+### Direkt åtkomst till tjänster
+
+Bibliotekssystem:
+
+```text
+http://localhost:8080
+```
+
+Notification Service:
+
+```text
+http://localhost:8082/notification
+```
+
+### Tekniker
+
+* Java 17
+* Spring Boot
+* Spring Cloud
+* Eureka Service Discovery
+* Spring Cloud Gateway
+* Spring Security
+* Swagger/OpenAPI
+* Gradle
+
+```
+

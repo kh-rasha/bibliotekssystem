@@ -27,6 +27,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'com.bucket4j:bucket4j-core:8.10.1'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     //implementation 'org.springframework.cloud:spring-cloud-starter-vault-config'
     runtimeOnly 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -37,6 +38,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.postgresql:postgresql'
+
 
 }
 ext {
